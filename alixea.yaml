@@ -12,4 +12,4 @@ hosts:
 
 images:
   - identifier: app
-    prebuildImage: public.ecr.aws/p8t2q7f4/diploi/component-bun:[tag]
+    prebuildImage: public.ecr.aws/p8t2q7f4/alixea/component-bun:[tag]
