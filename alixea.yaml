@@ -1,0 +1,15 @@
+alixeaVersion: v1.0
+type: component
+name: Bun
+description: Bun component for Alixea
+
+supportsAdditionalHosts: { serviceName: 'app'}
+
+hosts:
+  - name: Bun
+    identifier: app
+    port: 3000
+
+images:
+  - identifier: app
+    prebuildImage: public.ecr.aws/p8t2q7f4/diploi/component-bun:[tag]
