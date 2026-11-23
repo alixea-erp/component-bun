@@ -2,6 +2,7 @@
   "name": "component-bun",
   "module": "src/index.ts",
   "type": "module",
+  "private": true,
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "build": "echo 'Add your build step here if one is required'",
@@ -11,6 +12,6 @@
     "@types/bun": "latest"
   },
   "peerDependencies": {
-    "typescript": "^5.7.0"
+    "typescript": "^7"
   }
 }

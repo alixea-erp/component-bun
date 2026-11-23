@@ -2,24 +2,48 @@
 
 # Bun component for Alixea
 
-A generic Bun component that can be used to run any JS / TS app. Uses the official
-[oven/bun](https://hub.docker.com/r/oven/bun) Docker image.
-
-Versions are tags: `v1.3.8` runs the app as a StatefulSet in development, `main` as a Deployment in every stage.
-
-The prebuilt images (`prebuildImage` in `alixea.yaml`) are still the ones Diploi's CI pushes to its public ECR, built
-from the same files; this repository has no image pipeline of its own yet.
+A generic Bun component that can be used to run any JS / TS app. Runs on Alixea's Node.js base image
+([component-bases](https://github.com/alixea-erp/component-bases)), which has Bun. The version tag is the Bun version
+of the image.
 
 ## Operation
 
 ### Development
 
-Runs `bun install` when the component is first initialized, and `bun dev` when the deployment is started.
+Installs the dependencies when the component starts, then runs `bun run dev`, which is `bun --watch src/index.ts`
+and reloads on every change. This can be changed with the `containerCommands.developmentStart` field in `alixea.yaml`.
 
-### Production
+### Staging and production
 
-Builds a production ready image, which runs `bun install` and `bun run build` when it is created. Once the image runs,
-`bun start` is called.
+Staging and production build the deployment's commit on the deployment itself, with the deployment's environment
+variables: `bun install`, then `bun run build`. The template's build only prints a line, so put a build step there if
+the app needs one. A commit is built once; a restart of the component reuses the build. A failed build leaves the
+previous version running, and its log is shown on the deployment page, where the commit can also be built again.
+
+The component then runs `bun run start`, which can be changed with the `containerCommands.productionStart` field in
+`alixea.yaml`.
+
+The project folder is read-only while the app runs, so it cannot write files next to its code. Keep data in a database
+or another component, and use `/tmp` for a file needed only during one request.
+
+### System packages
+
+The image has Node.js, Bun and pnpm. Install more with `initScript` in `alixea.yaml`, which runs as root when the
+component starts, or `preBuildScript`, which runs only before the build:
+
+```yaml
+- name: Bun
+  identifier: bun
+  package: https://github.com/alixea-erp/component-bun#v1.4.5
+  initScript: |
+    apt-get update && apt-get install -y --no-install-recommends imagemagick
+```
+
+### Ports
+
+The component serves on port **3000**. To use another one, change the `port` of its `app` host in `alixea.yaml`.
+Alixea passes that port to the app as `PORT`, and `HOSTNAME` is `0.0.0.0`. A start command of your own should listen
+on `$PORT` too: staging and production count a new version as ready once it accepts connections on that port.
 
 ## Links
 
